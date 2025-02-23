@@ -124,7 +124,7 @@ class App:
         #    score_text = font.render(f"{person.score}", True, (0, 0, 0))
         #    self.screen.blit(score_text, (person.rect.x + 28, person.rect.bottom + 3))
         #
-        #pygame.display.flip() # Zobrazení vykreslených prvkůy
+        pygame.display.flip() # Zobrazení vykreslených prvkůy
 
 # Spuštění aplikace
 if __name__ == "__main__":
