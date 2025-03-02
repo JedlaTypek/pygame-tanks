@@ -11,7 +11,7 @@ class PersonSprite(pygame.sprite.Sprite):
 
         self.width = 196 / 4  # Šířka tanku
         self.height = 196 / 4  # Výška tanku
-        self.image_orig = pygame.image.load(f"media/{player_color}.png")  # Načtení obrázku
+        self.image_orig = pygame.image.load(f"media/{player_color}.png").convert_alpha()  # Načtení obrázku
         self.image_orig = pygame.transform.scale(self.image_orig, (int(self.width), int(self.height)))
         self.image_orig.set_colorkey((0, 0, 0))  # Nastavení průhledné barvy
 
@@ -21,27 +21,14 @@ class PersonSprite(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image_orig, -self.direction)
         self.rect = self.image.get_rect(center=(x, y))
 
+        # Vytvoření masky pro pixel-perfect kolize
+        self.mask = pygame.mask.from_surface(self.image)
+
         self.player_color = player_color
         self.speed = 4
         self.fire_key_pressed = False
         self.bullets_group = bullets_group
         self.score = 0
-
-    def get_hitbox(self):
-        '''Vrátí otočený polygonální hitbox jako seznam bodů'''
-        hw, hh = self.rect.width / 2, self.rect.height / 2  # Poloviny šířky a výšky
-        corners = [
-            pygame.math.Vector2(-hw, -hh),
-            pygame.math.Vector2(hw, -hh),
-            pygame.math.Vector2(hw, hh),
-            pygame.math.Vector2(-hw, hh)
-        ]
-        rotated_corners = [c.rotate(-self.direction) + self.rect.center for c in corners]
-        return rotated_corners
-
-    def draw_hitbox(self, surface):
-        '''Vykreslí polygonální hitbox'''
-        pygame.draw.polygon(surface, (255, 0, 0), self.get_hitbox(), 2)
 
     def update(self, keys, walls):
         '''Aktualizace postavy (pohyb + animace)'''
@@ -73,17 +60,23 @@ class PersonSprite(pygame.sprite.Sprite):
         dy = steps * math.sin(math.radians(direction))
         new_center = (self.rect.centerx + dx, self.rect.centery + dy)
 
-        # **Kolize s překážkami**
+        # **Kolize s překážkami pomocí mask**
         new_rect = self.image.get_rect(center=new_center)
-        hitbox = self.get_hitbox()
 
-        if not any(new_rect.colliderect(wall.rect) for wall in walls):
+        collision_detected = any(
+            pygame.sprite.collide_mask(self, wall) for wall in walls
+        )
+
+        if not collision_detected:
             self.rect.center = new_center
 
         # **Aktualizace úhlu a otočení obrázku**
         self.direction = direction
         self.image = pygame.transform.rotate(self.image_orig, -self.direction)
         self.rect = self.image.get_rect(center=self.rect.center)
+
+        # Aktualizace masky po otočení
+        self.mask = pygame.mask.from_surface(self.image)
 
         # Střelba při uvolnění mezerníku
         if (keys[pygame.K_SPACE] and self.player_color == 'blue') or (keys[pygame.K_RSHIFT] and self.player_color == 'red'):

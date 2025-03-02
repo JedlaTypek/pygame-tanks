@@ -5,25 +5,27 @@ class Wall:
     '''Třída reprezentující zeď'''
     def __init__(self, x, y, width, height, image_path="media/surface-01.jpg"):
         '''Konstruktor'''
-        self.rect = pygame.Rect(x, y, width, height)    # Vytvoření obdélníku
-        self.active = False    # Aktivní zeď
-        self.texture = pygame.image.load(image_path)  # Načtení textury
+        self.rect = pygame.Rect(x, y, width, height)  # Vytvoření obdélníku
+        self.active = False  # Aktivní zeď
+        self.texture = pygame.image.load(image_path).convert_alpha()  # Načtení textury
+        self.update_mask()  # Vytvoření masky pro přesnou detekci kolizí
+
+    def update_mask(self):
+        '''Aktualizace masky podle velikosti zdi'''
+        scaled_texture = pygame.transform.scale(self.texture, (self.rect.width, self.rect.height))
+        self.mask = pygame.mask.from_surface(scaled_texture)
 
     def move(self, dx, dy):
         '''Pohyb zdi'''
-        self.rect.move_ip(dx, dy)   # Pohyb obdélníku
+        self.rect.move_ip(dx, dy)  # Pohyb obdélníku
+        self.update_mask()  # Aktualizace masky po pohybu
 
     def set_active(self, is_active):
         '''Nastavení aktivity zdi'''
         self.active = is_active
 
-    def get_side(self, bullet_rect):
-        print(f"Kulka: {bullet_rect.left, bullet_rect.top, bullet_rect.right, bullet_rect.bottom}")
-        print(f"Zed: {self.rect.left, self.rect.top, bullet_rect.right, bullet_rect.bottom}")
-
     def draw(self, target_surface):
         '''Vykreslení zdi'''
-        # Přizpůsobení textury velikosti zdi
         scaled_texture = pygame.transform.scale(self.texture, (self.rect.width, self.rect.height))
         target_surface.blit(scaled_texture, self.rect.topleft)
 
@@ -31,13 +33,14 @@ class Wall:
         if self.active:
             pygame.draw.rect(target_surface, (0, 0, 255), self.rect, 3)
 
+
 class WallManager:
     '''Třída pro správu zdí'''
     def __init__(self):
-        self.walls = []     # Seznam zdí
-        self.active_wall = None    # Aktivní zeď
-        self.dragging = False   # Přetahování zdi
-        self.start_pos = None   # Počáteční pozice
+        self.walls = []  # Seznam zdí
+        self.active_wall = None  # Aktivní zeď
+        self.dragging = False  # Přetahování zdi
+        self.start_pos = None  # Počáteční pozice
         self.mode = None  # 'move' nebo 'resize'
 
     def start_dragging(self, position, keys):
@@ -105,6 +108,9 @@ class WallManager:
                 self.active_wall.rect.width = abs(x2 - x1)
                 self.active_wall.rect.height = abs(y2 - y1)
 
+            # Aktualizace masky po změně velikosti nebo přesunutí
+            self.active_wall.update_mask()
+
     def delete_active_wall(self):
         '''Odstranění aktivní zdi'''
         if self.active_wall in self.walls:
@@ -122,4 +128,3 @@ class WallManager:
             if wall != self.active_wall:
                 wall.active = False
             wall.draw(target_surface)
-

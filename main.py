@@ -1,7 +1,5 @@
 import random
-
 import pygame
-
 from custom_surface import CustomSurface
 from enemy import Enemy
 from person_sprite import PersonSprite
@@ -14,13 +12,12 @@ class App:
     def __init__(self):
         '''Konstruktor - Inicializace hry'''
         pygame.init()   # Inicializace Pygame
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))    # Vytvoření okna
-        pygame.display.set_caption("Pygame Demo")   # Název okna
-        self.clock = pygame.time.Clock()    # Vytvoření hodin
-        self.running = True     # Hra běží
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Vytvoření okna
+        pygame.display.set_caption("Pygame Demo")  # Název okna
+        self.clock = pygame.time.Clock()  # Vytvoření hodin
+        self.running = True  # Hra běží
 
         # Komponenty
-        # Vytvoření vlastního Surface
         self.custom_surface = CustomSurface(SCREEN_WIDTH, SCREEN_HEIGHT, (0, 0))
         self.walls = WallManager()
         self.person_sprites = pygame.sprite.Group()  # Skupina postav
@@ -60,17 +57,17 @@ class App:
     def run(self):
         '''Hlavní smyčka hry'''
         while self.running:
-            self.handle_events()    # Zpracování událostí
-            self.update()   # Aktualizace stavu
-            self.draw()    # Vykreslení prvků
-            self.clock.tick(FPS)    # Případné čekání na další snímek - nastavení počtu snímků za sekundu
-        pygame.quit()   # Ukončení Pygame
+            self.handle_events()  # Zpracování událostí
+            self.update()  # Aktualizace stavu
+            self.draw()  # Vykreslení prvků
+            self.clock.tick(FPS)  # Počet snímků za sekundu
+        pygame.quit()  # Ukončení Pygame
 
     def handle_events(self):
         '''Zpracování všech událostí v hlavní smyčce hry'''
-        for event in pygame.event.get():   # Projít všechny události ve frontě
-            if event.type == pygame.QUIT or event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:  # Ukončení hry
-                self.running = False
+        for event in pygame.event.get():  # Projít všechny události ve frontě
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
+                self.running = False  # Ukončení hry
 
             # Přepínání aktivní postavy pomocí klávesy Tab
             if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
@@ -84,16 +81,15 @@ class App:
                     self.walls.start_dragging(event.pos, keys)
 
             if event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:  # Levé tlačítko myši
+                if event.button == 1:
                     self.walls.stop_dragging(event.pos)
 
             if event.type == pygame.MOUSEMOTION:
                 self.walls.update_dragging(event.pos)
 
             # Odstranění zdi
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DELETE:
-                    self.walls.delete_active_wall()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_DELETE:
+                self.walls.delete_active_wall()
 
     def update(self):
         '''Aktualizace herního stavu'''
@@ -103,30 +99,30 @@ class App:
         self.enemies.update()
 
         # Kontrola kolize střel s nepřáteli
-        # for bullet in self.bullets:
-        #     hit_enemies = pygame.sprite.spritecollide(bullet, self.person_sprites, False)
-        #     if hit_enemies:
-        #         bullet.kill()
-        #         self.person_sprites_list[self.active_person_index].score += len(hit_enemies)
+        for bullet in self.bullets:
+            hit_enemies = pygame.sprite.spritecollide(bullet, self.enemies, True, pygame.sprite.collide_mask)
+            if hit_enemies:
+                bullet.kill()
+                self.person_sprites_list[self.active_person_index].score += len(hit_enemies)
+
+        # Kolize střel se zdmi
+        for bullet in self.bullets:
+            if any(pygame.sprite.collide_mask(bullet, wall) for wall in self.walls.get_walls()):
+                bullet.kill()
 
     def draw(self):
         '''Vykreslení herních prvků'''
-        self.screen.fill((255, 255, 0)) # Vyplnění obrazovky žlutou barvou
-        self.custom_surface.draw(self.screen) # Vykreslení vlastního Surface
-        self.walls.draw(self.screen)    # Vykreslení zdí
+        self.screen.fill((255, 255, 0))  # Vyplnění obrazovky žlutou barvou
+        self.custom_surface.draw(self.screen)  # Vykreslení vlastního Surface
+        self.walls.draw(self.screen)  # Vykreslení zdí
         self.person_sprites.draw(self.screen)  # Vykreslení všech postav
         self.bullets.draw(self.screen)  # Vykreslení střel
         self.enemies.draw(self.screen)  # Vykreslení nepřátel
 
-        # Zobrazení skóre pod postavami
-        #font = pygame.font.SysFont(None, 24)
-        #for person in self.person_sprites_list:
-        #    score_text = font.render(f"{person.score}", True, (0, 0, 0))
-        #    self.screen.blit(score_text, (person.rect.x + 28, person.rect.bottom + 3))
-        #
-        pygame.display.flip() # Zobrazení vykreslených prvkůy
+        pygame.display.flip()  # Zobrazení vykreslených prvků
+
 
 # Spuštění aplikace
 if __name__ == "__main__":
-    app = App()     # Vytvoření instance třídy App
-    app.run()      # Spuštění hlavní smyčky hry
+    app = App()
+    app.run()
