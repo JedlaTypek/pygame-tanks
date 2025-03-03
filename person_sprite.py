@@ -13,7 +13,6 @@ class PersonSprite(pygame.sprite.Sprite):
         self.height = 196 / 4  # Výška tanku
         self.image_orig = pygame.image.load(f"media/{player_color}.png").convert_alpha()  # Načtení obrázku
         self.image_orig = pygame.transform.scale(self.image_orig, (int(self.width), int(self.height)))
-        self.image_orig.set_colorkey((0, 0, 0))  # Nastavení průhledné barvy
 
         self.direction = randint(0, 355)  # Náhodná počáteční rotace
 
@@ -61,19 +60,22 @@ class PersonSprite(pygame.sprite.Sprite):
         new_center = (self.rect.centerx + dx, self.rect.centery + dy)
 
         # **Kolize s překážkami pomocí mask**
+        new_image = pygame.transform.rotate(self.image_orig, -self.direction)
+        new_mask = pygame.mask.from_surface(new_image)
         new_rect = self.image.get_rect(center=new_center)
 
         collision_detected = any(
-            pygame.sprite.collide_mask(self, wall) for wall in walls
+            wall.mask.overlap(new_mask, (new_rect.x - wall.rect.x, new_rect.y - wall.rect.y))
+            for wall in walls
         )
 
         if not collision_detected:
             self.rect.center = new_center
 
-        # **Aktualizace úhlu a otočení obrázku**
-        self.direction = direction
-        self.image = pygame.transform.rotate(self.image_orig, -self.direction)
-        self.rect = self.image.get_rect(center=self.rect.center)
+            # **Aktualizace úhlu a otočení obrázku**
+            self.direction = direction
+            self.image = new_image
+            self.rect = new_rect
 
         # Aktualizace masky po otočení
         self.mask = pygame.mask.from_surface(self.image)

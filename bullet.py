@@ -35,7 +35,6 @@ class Bullet(pygame.sprite.Sprite):
         # **Kolize se zdmi pomocí masky**
         for wall in walls:
             if pygame.sprite.collide_mask(self, wall):
-                wall.get_side(self.rect)
                 if self.dx != 0:  # Odraz vodorovně
                     self.dx = -self.dx
                 if self.dy != 0:  # Odraz svisle

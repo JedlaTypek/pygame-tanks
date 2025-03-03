@@ -1,7 +1,6 @@
 import random
 import pygame
 from custom_surface import CustomSurface
-from enemy import Enemy
 from person_sprite import PersonSprite
 from wall import WallManager
 from settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS
@@ -22,10 +21,8 @@ class App:
         self.walls = WallManager()
         self.person_sprites = pygame.sprite.Group()  # Skupina postav
         self.bullets = pygame.sprite.Group()  # Skupina střel
-        self.enemies = pygame.sprite.Group()  # Skupina nepřátel
         self.person_sprites_list = []  # Seznam všech postav pro přepínání
         self.add_person_sprites()  # Přidání postav
-        self.add_enemies()  # Přidání nepřátel
         self.active_person_index = 0  # Index aktivní postavy
         self.set_active_person(0)
 
@@ -35,19 +32,6 @@ class App:
         self.person_sprites_list.append(PersonSprite(400, 300, self.bullets, "blue"))
         for person in self.person_sprites_list:
             self.person_sprites.add(person)
-
-    def add_enemies(self):
-        '''Přidání nepřátel do hry bez překrývání'''
-        for _ in range(5):  # Přidá 5 nepřátel
-            while True:
-                x = random.randrange(50, SCREEN_WIDTH - 50)
-                y = random.randrange(50, SCREEN_HEIGHT - 50)
-                new_enemy = Enemy(x, y)
-
-                # Kontrola, zda se nepřítel nepřekrývá s jinými
-                if not any(new_enemy.rect.colliderect(enemy.rect) for enemy in self.enemies):
-                    self.enemies.add(new_enemy)
-                    break
 
     def set_active_person(self, index):
         '''Nastaví aktivní postavu'''
@@ -96,19 +80,18 @@ class App:
         keys = pygame.key.get_pressed()
         self.person_sprites.update(keys, self.walls.get_walls())
         self.bullets.update(self.walls.get_walls(), self.person_sprites)
-        self.enemies.update()
 
-        # Kontrola kolize střel s nepřáteli
+        # Kontrola kolize střel s hráči
         for bullet in self.bullets:
-            hit_enemies = pygame.sprite.spritecollide(bullet, self.enemies, True, pygame.sprite.collide_mask)
-            if hit_enemies:
+            hit_players = pygame.sprite.spritecollide(bullet, self.person_sprites, True, pygame.sprite.collide_mask)
+            if hit_players:
                 bullet.kill()
-                self.person_sprites_list[self.active_person_index].score += len(hit_enemies)
+                self.person_sprites_list[self.active_person_index].score += len(hit_players) ## opravit aby to přičetlo tanku, který vystřelil, pokud teda nezabil sám sebe
 
         # Kolize střel se zdmi
-        for bullet in self.bullets:
-            if any(pygame.sprite.collide_mask(bullet, wall) for wall in self.walls.get_walls()):
-                bullet.kill()
+        # for bullet in self.bullets:
+        #     if any(pygame.sprite.collide_mask(bullet, wall) for wall in self.walls.get_walls()):
+        #         bullet.kill()
 
     def draw(self):
         '''Vykreslení herních prvků'''
@@ -117,8 +100,6 @@ class App:
         self.walls.draw(self.screen)  # Vykreslení zdí
         self.person_sprites.draw(self.screen)  # Vykreslení všech postav
         self.bullets.draw(self.screen)  # Vykreslení střel
-        self.enemies.draw(self.screen)  # Vykreslení nepřátel
-
         pygame.display.flip()  # Zobrazení vykreslených prvků
 
 
