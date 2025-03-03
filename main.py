@@ -12,7 +12,7 @@ class App:
         '''Konstruktor - Inicializace hry'''
         pygame.init()   # Inicializace Pygame
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # Vytvoření okna
-        pygame.display.set_caption("Pygame Demo")  # Název okna
+        pygame.display.set_caption("Tanks")  # Název okna
         self.clock = pygame.time.Clock()  # Vytvoření hodin
         self.running = True  # Hra běží
 

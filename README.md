@@ -1,13 +1,9 @@
-# Pygame Demo   
-## Ukázka možností využití knihovny Pygame
-
-Tento projekt představuje ukázkovou aplikaci vytvořenou pomocí frameworku [Pygame](https://www.pygame.org/). Hra obsahuje interaktivní postavy, střelbu a manipulaci s herními zdmi.
+# Simple tank game in Python
 
 ## Funkce
 
-- **Pohyb postav:** Aktivní postava se ovládá pomocí šipek.
-- **Přepínání postav:** Klávesa `Tab` umožňuje přepínat mezi dostupnými postavami.
-- **Střelba:** Střely lze vystřelit stisknutím a následným uvolněním mezerníku.
+- **Pohyb postav:** Tanky se ovládají pomocí šipek nebo klávas WSAD.
+- **Střelba:** Střely lze vystřelit stisknutím a následným uvolněním mezerníku nebo pravého shiftu (podle hráče).
 - **Manipulace se zdmi:**
   - Přesouvání zdí: podržte `Shift` a přetáhněte zeď myší.
   - Změna velikosti: podržte `Ctrl` a přetáhněte rohy zdi.
@@ -24,14 +20,14 @@ Tento projekt představuje ukázkovou aplikaci vytvořenou pomocí frameworku [P
 1. Naklonujte tento repozitář:
 
    ```bash
-   git clone https://github.com/uzivatel/pygame-demo.git
-   cd pygame-demo
+   git clone https://github.com/JedlaTypek/pygame-tanks
+   cd pygame-tanks
    ```
 
 2. Nainstalujte požadované knihovny:
 
    ```bash
-   pip install pygame
+   pip install -r requierements.txt
    ```
 
 3. Spusťte aplikaci:
@@ -40,42 +36,21 @@ Tento projekt představuje ukázkovou aplikaci vytvořenou pomocí frameworku [P
    python main.py
    ```
 
-## Struktura projektu
-
-- `main.py`: Hlavní třída aplikace a herní smyčka.
-- `bullet.py`: Třída pro správu střel.
-- `custom_surface.py`: Třída zajišťující vykreslení vlastního pozadí.
-- `person_sprite.py`: Třída postavy s animací a střelbou.
-- `wall.py`: Třídy pro manipulaci se zdmi a jejich správu.
-- `settings.py`: Konfigurační soubor s konstantami, jako je velikost obrazovky a počet snímků za sekundu.
-
-## Média
-
-Hra využívá následující mediální soubory:
-
-- `media/sprite-person.png`: Sprite sheet postav.
-- `media/grass.jpg`: Textura pozadí.
-- `media/surface-01.jpg`: Textura pro zdi.
-
-Ujistěte se, že jsou všechny mediální soubory dostupné ve složce `media/`.
-
 ## Klávesové zkratky
 
-| Akce                  | Klávesa            |
-|-----------------------|--------------------|
-| Pohyb                 | Šipky              |
-| Přepínání postav      | Tab                |
-| Střelba               | Mezerník           |
-| Přesun zdi            | Shift + myš        |
-| Změna velikosti zdi   | Ctrl + myš         |
-| Vytvoření nové zdi    | Levé tlačítko myši |
-| Odstranění zdi        | Delete             |
-| Ukončení aplikace     | Esc                |
+| Akce                  | Červený hráč       | Modrý hráč |
+|-----------------------|--------------------|------------|
+| Pohyb                 | Šipky              | WSAD       |
+| Střelba               | Pravý shift        | Mezerník   |
+
+| Další akce          | Klávesa            |
+|---------------------|--------------------|
+| Přesun zdi          | Shift + myš        | 
+| Změna velikosti zdi | Ctrl + myš         |
+| Vytvoření nové zdi  | Levé tlačítko myši |
+| Odstranění zdi      | Delete             |
+| Ukončení aplikace   | Esc                |
 
 ## Náhled
 
 ![Screenshot hry](media/screenshot.png) <!-- Nahraďte skutečnou cestou k náhledu -->
-
-## Licence
-
-Tento projekt je licencován pod licencí MIT. Podrobnosti naleznete v souboru `LICENSE`.

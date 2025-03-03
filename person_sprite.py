@@ -70,12 +70,13 @@ class PersonSprite(pygame.sprite.Sprite):
         )
 
         if not collision_detected:
-            self.rect.center = new_center
+            if (0 <= new_rect.center[0] <= SCREEN_WIDTH and 0 <= new_rect.center[1] <= SCREEN_HEIGHT):
+                self.rect.center = new_center
 
-            # **Aktualizace úhlu a otočení obrázku**
-            self.direction = direction
-            self.image = new_image
-            self.rect = new_rect
+                # **Aktualizace úhlu a otočení obrázku**
+                self.direction = direction
+                self.image = new_image
+                self.rect = new_rect
 
         # Aktualizace masky po otočení
         self.mask = pygame.mask.from_surface(self.image)

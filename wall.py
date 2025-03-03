@@ -3,7 +3,7 @@ import pygame
 
 class Wall:
     '''Třída reprezentující zeď'''
-    def __init__(self, x, y, width, height, image_path="media/surface-01.jpg"):
+    def __init__(self, x, y, width, height, image_path="media/iron.jpg"):
         '''Konstruktor'''
         self.rect = pygame.Rect(x, y, width, height)  # Vytvoření obdélníku
         self.active = False  # Aktivní zeď

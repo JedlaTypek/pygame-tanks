@@ -10,7 +10,7 @@ class CustomSurface:
         self.position = position    # Pozice vlastního Surface
 
         # Načtení obrázku na Surface
-        self.image = pygame.image.load("media/grass.jpg")  # Načtení obrázku pozadí
+        self.image = pygame.image.load("media/soil.jpg")  # Načtení obrázku pozadí
         self.image = pygame.transform.scale(self.image, (width, height))    # Změna velikosti obrázku
 
     def draw(self, target_surface):
