@@ -92,6 +92,7 @@ class PersonSprite(pygame.sprite.Sprite):
         bullet = Bullet(
             self.rect.centerx + self.width / 1.5 * math.cos(math.radians(self.direction)),
             self.rect.centery + self.height / 1.5 * math.sin(math.radians(self.direction)),  # Oprava směru střely
-            self.direction
+            self.direction,
+            self
         )
         bullets_group.add(bullet)

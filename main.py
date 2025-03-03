@@ -23,8 +23,6 @@ class App:
         self.bullets = pygame.sprite.Group()  # Skupina střel
         self.person_sprites_list = []  # Seznam všech postav pro přepínání
         self.add_person_sprites()  # Přidání postav
-        self.active_person_index = 0  # Index aktivní postavy
-        self.set_active_person(0)
 
     def add_person_sprites(self):
         '''Přidání postav do hry'''
@@ -32,11 +30,6 @@ class App:
         self.person_sprites_list.append(PersonSprite(400, 300, self.bullets, "blue"))
         for person in self.person_sprites_list:
             self.person_sprites.add(person)
-
-    def set_active_person(self, index):
-        '''Nastaví aktivní postavu'''
-        for i, person in enumerate(self.person_sprites_list):
-            person.is_active = (i == index)
 
     def run(self):
         '''Hlavní smyčka hry'''
@@ -53,10 +46,6 @@ class App:
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 self.running = False  # Ukončení hry
 
-            # Přepínání aktivní postavy pomocí klávesy Tab
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_TAB:
-                self.active_person_index = (self.active_person_index + 1) % len(self.person_sprites_list)
-                self.set_active_person(self.active_person_index)
 
             # Vytvoření nebo manipulace se zdmi
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -84,14 +73,11 @@ class App:
         # Kontrola kolize střel s hráči
         for bullet in self.bullets:
             hit_players = pygame.sprite.spritecollide(bullet, self.person_sprites, True, pygame.sprite.collide_mask)
-            if hit_players:
+            for player in hit_players:
                 bullet.kill()
-                self.person_sprites_list[self.active_person_index].score += len(hit_players) ## opravit aby to přičetlo tanku, který vystřelil, pokud teda nezabil sám sebe
-
-        # Kolize střel se zdmi
-        # for bullet in self.bullets:
-        #     if any(pygame.sprite.collide_mask(bullet, wall) for wall in self.walls.get_walls()):
-        #         bullet.kill()
+                player.kill()
+                if player != bullet.firing_player:
+                    bullet.firing_player.score += 1
 
     def draw(self):
         '''Vykreslení herních prvků'''
