@@ -15,6 +15,8 @@ class App:
         pygame.display.set_caption("Tanks")  # Název okna
         self.clock = pygame.time.Clock()  # Vytvoření hodin
         self.running = True  # Hra běží
+        self.paused = False
+        self.timer = 0
 
         # Komponenty
         self.custom_surface = CustomSurface(SCREEN_WIDTH, SCREEN_HEIGHT, (0, 0))
@@ -27,7 +29,7 @@ class App:
     def add_person_sprites(self):
         '''Přidání postav do hry'''
         self.person_sprites_list.append(PersonSprite(100, 100, self.bullets, "red"))
-        self.person_sprites_list.append(PersonSprite(400, 300, self.bullets, "blue"))
+        self.person_sprites_list.append(PersonSprite(SCREEN_WIDTH - 100, SCREEN_HEIGHT - 100, self.bullets, "blue"))
         for person in self.person_sprites_list:
             self.person_sprites.add(person)
 
@@ -66,26 +68,50 @@ class App:
 
     def update(self):
         '''Aktualizace herního stavu'''
-        keys = pygame.key.get_pressed()
-        self.person_sprites.update(keys, self.walls.get_walls())
-        self.bullets.update(self.walls.get_walls(), self.person_sprites)
+        if not self.paused:
+            keys = pygame.key.get_pressed()
+            self.person_sprites.update(keys, self.walls.get_walls())
+            self.bullets.update(self.walls.get_walls(), self.person_sprites)
 
-        # Kontrola kolize střel s hráči
-        for bullet in self.bullets:
-            hit_players = pygame.sprite.spritecollide(bullet, self.person_sprites, True, pygame.sprite.collide_mask)
-            for player in hit_players:
-                bullet.kill()
-                player.kill()
-                if player != bullet.firing_player:
-                    bullet.firing_player.score += 1
+            # Kontrola kolize střel s hráči
+            for bullet in self.bullets:
+                hit_players = pygame.sprite.spritecollide(bullet, self.person_sprites, False, pygame.sprite.collide_mask)
+                for player in hit_players:
+                    bullet.kill()
+                    player.alive = False
+                    for person in self.person_sprites:
+                        if person.alive:
+                            person.score += 1
+                            self.paused = True
+                            self.timer = 180
+                            for p in self.person_sprites:
+                                if p.player_color == "red":
+                                    p.rect.centerx = 100
+                                    p.rect.centery = 100
+                                elif p.player_color == "blue":
+                                    p.rect.centerx = SCREEN_WIDTH - 100
+                                    p.rect.centery = SCREEN_HEIGHT - 100
+        else:
+            self.timer -= 1
+            if self.timer == 0:
+                self.paused = False
+                for player in self.person_sprites:
+                    player.alive = True
 
     def draw(self):
         '''Vykreslení herních prvků'''
         self.screen.fill((255, 255, 0))  # Vyplnění obrazovky žlutou barvou
         self.custom_surface.draw(self.screen)  # Vykreslení vlastního Surface
-        self.walls.draw(self.screen)  # Vykreslení zdí
-        self.person_sprites.draw(self.screen)  # Vykreslení všech postav
-        self.bullets.draw(self.screen)  # Vykreslení střel
+        if not self.paused:
+            self.walls.draw(self.screen)  # Vykreslení zdí
+            self.person_sprites.draw(self.screen)  # Vykreslení všech postav
+            self.bullets.draw(self.screen)  # Vykreslení střel
+        else:
+            font = pygame.font.SysFont(None, 128)
+            players = list(self.person_sprites)  # Převede group na list
+            score_text = font.render(f"{players[0].score}:{players[1].score}", True, (0, 0, 0))
+            font_width, font_height = font.size(f"{players[0].score}:{players[1].score}")
+            self.screen.blit(score_text, (SCREEN_WIDTH/2 - font_width / 2, SCREEN_HEIGHT/2 - font_height / 2))
         pygame.display.flip()  # Zobrazení vykreslených prvků
 
 

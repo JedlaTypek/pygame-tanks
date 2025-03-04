@@ -28,6 +28,7 @@ class PersonSprite(pygame.sprite.Sprite):
         self.fire_key_pressed = False
         self.bullets_group = bullets_group
         self.score = 0
+        self.alive = True
 
     def update(self, keys, walls):
         '''Aktualizace postavy (pohyb + animace)'''
